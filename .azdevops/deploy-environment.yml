@@ -32,22 +32,12 @@ variables:
   value: '$(Build.SourcesDirectory)/environments/${{ parameters.locationEnvironmentName }}/${{ parameters.environmentName }}'
 
 steps:
-  - task: TerraformTaskV4@4
-    displayName: Terraform Init
-    inputs:
-      provider: 'azurerm'
-      backendServiceArm: 'jt-payg-ado'
-      backendAzureRmResourceGroupName: 'jt-tfstate-rg'
-      backendAzureRmStorageAccountName: 'jttfstatestorage'
-      backendAzureRmContainerName: 'tfstate-dev'
-      backendAzureRmKey: '${{ parameters.locationEnvironmentName }}/${{ parameters.environmentName }}.tfstate'
-      command: 'init'
-      workingDirectory: '$(terraformExecutionDirectory)'
-
-  - task: TerraformTaskV4@4
-    displayName: Terraform ${{ parameters.terraformAction }}
-    inputs:
-      provider: 'azurerm'
-      environmentServiceNameAzureRM: 'jt-payg-ado'
-      command: ${{ parameters.terraformAction }}
-      workingDirectory: '$(terraformExecutionDirectory)'
+- template: templates/tf-action-steps.yml
+  parameters:
+    terraformAction: ${{ parameters.terraformAction }}
+    terraformExeuctionDirectory: '$(terraformExecutionDirectory)'
+    backendServiceArm: 'jt-payg-ado'
+    backendAzureRmResourceGroupName: 'jt-tfstate-rg'
+    backendAzureRmStorageAccountName: 'jttfstatestorage'
+    backendAzureRmContainerName: 'tfstate-dev'
+    backendAzureRmKey: '${{ parameters.locationEnvironmentName }}/${{ parameters.environmentName }}.tfstate'
