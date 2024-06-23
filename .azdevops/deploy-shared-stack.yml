@@ -1,0 +1,46 @@
+## 20240623.australiaeast-dev.plan.01
+name: "$(Date:yyyyMMdd).${{ parameters.locationEnvironmentName }}.${{ parameters.terraformAction }}.$(rev:rr)"
+
+pr: none
+trigger: none
+
+parameters:
+- name: locationEnvironmentName
+  displayName: Location/Environment
+  type: string
+  values:
+    - australiaeast-dev
+
+- name: terraformAction
+  displayName: Terraform Action
+  type: string
+  default: plan
+  values:
+    - plan
+    - apply
+    - destroy
+
+variables:
+- name: terraformExecutionDirectory
+  value: '$(Build.SourcesDirectory)/environments/${{ parameters.locationEnvironmentName }}/shared'
+
+steps:
+  - task: TerraformTaskV4@4
+    displayName: Terraform Init
+    inputs:
+      provider: 'azurerm'
+      backendServiceArm: 'jt-payg-ado'
+      backendAzureRmResourceGroupName: 'jt-tfstate-rg'
+      backendAzureRmStorageAccountName: 'jttfstatestorage'
+      backendAzureRmContainerName: 'tfstate-dev'
+      backendAzureRmKey: '${{ parameters.locationEnvironmentName }}/shared.tfstate'
+      command: 'init'
+      workingDirectory: '$(terraformExecutionDirectory)'
+
+  - task: TerraformTaskV4@4
+    displayName: Terraform ${{ parameters.terraformAction }}
+    inputs:
+      provider: 'azurerm'
+      environmentServiceNameAzureRM: 'jt-payg-ado'
+      command: ${{ parameters.terraformAction }}
+      workingDirectory: '$(terraformExecutionDirectory)'
