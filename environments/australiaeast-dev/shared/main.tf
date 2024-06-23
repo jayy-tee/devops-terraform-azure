@@ -5,12 +5,7 @@ terraform {
       version = "~> 3.0"
     }
   }
-  backend "azurerm" {
-    resource_group_name  = "jt-tfstate-rg"
-    storage_account_name = "jttfstatestorage"
-    container_name       = "tfstate-dev"
-    key                  = "australiaeast-dev/shared.tfstate"
-  }
+  backend "azurerm" {}
 }
 
 provider "azurerm" {
